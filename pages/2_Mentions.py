@@ -61,7 +61,7 @@ else:
     # --- Display results ---
     st.markdown(f"**Results:** {len(filtered):,} articles")
 
-    cols_to_show = ["DATE", "TIME", "SOURCE", "TONALITY", "TITLE", "SUMMARY", "LINK"]
+    cols_to_show = ["date_only", "time_only", "source", "tonality", "title", "summary", "link"]
     cols_to_show = [c for c in cols_to_show if c in filtered.columns]
 
     if "published_parsed" in filtered.columns:
@@ -77,3 +77,4 @@ else:
         file_name="helb_mentions_filtered.csv",
         mime="text/csv",
     )
+
