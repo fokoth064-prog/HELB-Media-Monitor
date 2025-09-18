@@ -15,7 +15,7 @@ def load_data(csv_url):
         return pd.DataFrame()
 
     # Normalize column names
-    df.columns = [c.strip() for c in df.columns]
+    df.columns = [c.strip().lower() for c in df.columns]
 
     # Ensure published_parsed column exists
     if "published" in df.columns:
@@ -30,13 +30,13 @@ def load_data(csv_url):
         df["DATE"] = ""
         df["TIME"] = ""
 
-    # Fill NaNs for text columns
+    # Ensure text columns exist
     for col in ["title", "summary", "source", "tonality", "link"]:
         if col not in df.columns:
             df[col] = ""
         df[col] = df[col].fillna("")
 
-    # Rename columns to uppercase for consistency
+    # Rename all to UPPERCASE
     rename_map = {
         "title": "TITLE",
         "summary": "SUMMARY",
@@ -57,4 +57,38 @@ if df.empty:
     st.info("No data available. Check that the CSV URL is correct and the sheet is shared publicly.")
 else:
     # --- Search filter ---
-    search = st.text_input_
+    search = st.text_input("Search by keyword (TITLE/SUMMARY)")
+    if search:
+        mask = (
+            df["TITLE"].str.contains(search, case=False, na=False)
+            | df["SUMMARY"].str.contains(search, case=False, na=False)
+        )
+        filtered = df[mask].copy()
+    else:
+        filtered = df.copy()
+
+    # --- Display results ---
+    st.markdown(f"**Results:** {len(filtered):,} articles")
+
+    cols_to_show = ["DATE", "TIME", "SOURCE", "TONALITY", "TITLE", "SUMMARY", "LINK"]
+    cols_to_show = [c for c in cols_to_show if c in filtered.columns]
+
+    if "published_parsed" in filtered.columns:
+        filtered = filtered.sort_values(by="published_parsed", ascending=False)
+
+    # Make LINK column clickable
+    if "LINK" in filtered.columns:
+        filtered["LINK"] = filtered["LINK"].apply(
+            lambda x: f"[Open Article]({x})" if isinstance(x, str) and x.startswith("http") else ""
+        )
+
+    st.dataframe(filtered[cols_to_show].reset_index(drop=True), height=500)
+
+    # --- Download filtered ---
+    csv_bytes = filtered[cols_to_show].to_csv(index=False).encode("utf-8")
+    st.download_button(
+        "📥 Download Filtered Mentions",
+        data=csv_bytes,
+        file_name="helb_mentions_filtered.csv",
+        mime="text/csv",
+    )
