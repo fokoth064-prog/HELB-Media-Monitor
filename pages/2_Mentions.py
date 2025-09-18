@@ -19,23 +19,32 @@ def load_data(csv_url):
 
     # Ensure published_parsed column exists
     if "published" in df.columns:
-        # Parse and localize to Nairobi (EAT, UTC+3)
         df["published_parsed"] = pd.to_datetime(df["published"], errors="coerce", utc=True)
         df["published_parsed"] = df["published_parsed"].dt.tz_convert("Africa/Nairobi")
 
-        # Create clean date and time columns
-        df["date_only"] = df["published_parsed"].dt.date
-        df["time_only"] = df["published_parsed"].dt.strftime("%H:%M")
+        # Create clean DATE and TIME columns
+        df["DATE"] = df["published_parsed"].dt.date
+        df["TIME"] = df["published_parsed"].dt.strftime("%H:%M")
     else:
         df["published_parsed"] = pd.NaT
-        df["date_only"] = ""
-        df["time_only"] = ""
+        df["DATE"] = ""
+        df["TIME"] = ""
 
     # Fill NaNs for text columns
     for col in ["title", "summary", "source", "tonality", "link"]:
         if col not in df.columns:
             df[col] = ""
         df[col] = df[col].fillna("")
+
+    # Rename columns to uppercase for consistency
+    rename_map = {
+        "title": "TITLE",
+        "summary": "SUMMARY",
+        "source": "SOURCE",
+        "tonality": "TONALITY",
+        "link": "LINK",
+    }
+    df = df.rename(columns=rename_map)
 
     return df
 
@@ -48,33 +57,4 @@ if df.empty:
     st.info("No data available. Check that the CSV URL is correct and the sheet is shared publicly.")
 else:
     # --- Search filter ---
-    search = st.text_input("Search by keyword (title/summary)")
-    if search:
-        mask = (
-            df["title"].str.contains(search, case=False, na=False)
-            | df["summary"].str.contains(search, case=False, na=False)
-        )
-        filtered = df[mask].copy()
-    else:
-        filtered = df.copy()
-
-    # --- Display results ---
-    st.markdown(f"**Results:** {len(filtered):,} articles")
-
-    cols_to_show = ["date_only", "time_only", "source", "tonality", "title", "summary", "link"]
-    cols_to_show = [c for c in cols_to_show if c in filtered.columns]
-
-    if "published_parsed" in filtered.columns:
-        filtered = filtered.sort_values(by="published_parsed", ascending=False)
-
-    st.dataframe(filtered[cols_to_show].reset_index(drop=True), height=500)
-
-    # --- Download filtered ---
-    csv_bytes = filtered[cols_to_show].to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "📥 Download Filtered Mentions",
-        data=csv_bytes,
-        file_name="helb_mentions_filtered.csv",
-        mime="text/csv",
-    )
-
+    search = st.text_input_
