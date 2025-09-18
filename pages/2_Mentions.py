@@ -144,7 +144,7 @@ def make_wordcloud_image(text_blob, width=800, height=400):
     return buf
 
 # ---------------- MAIN ----------------
-st.title("📋 Mentions — Enhanced View")
+st.title("📋 HELB MENTIONS VIEW")
 
 df = load_data(CSV_URL)
 if df.empty:
