@@ -12,6 +12,7 @@ def load_data():
 df = load_data()
 
 st.title("📋 Mentions List")
+st.write("Columns available:", df.columns.tolist())
 
 # Search filter
 search = st.text_input("Search by keyword (title/summary)")
@@ -22,9 +23,12 @@ if search:
 else:
     filtered = df.copy()
 
+cols_to_show = [c for c in ['published','source','tonality','title','summary','link'] if c in filtered.columns]
 st.dataframe(
-    filtered[['published','source','tonality','title','summary','link']].sort_values('published_parsed', ascending=False),
+    filtered[cols_to_show].sort_values('published_parsed', ascending=False),
     height=500
+)
+
 )
 
 # Download filtered
