@@ -3,4 +3,7 @@ https://docs.google.com/spreadsheets/d/10LcDId4y2vz5mk7BReXL303-OBa2QxsN3drUcefp
 requirements.txt
 streamlit
 pandas
+git add .
+git commit -m "Initial Streamlit app"
+git push origin main
 
