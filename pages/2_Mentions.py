@@ -23,7 +23,7 @@ def load_data(csv_url):
         df["published_parsed"] = df["published_parsed"].dt.tz_convert("Africa/Nairobi")
 
         # Create clean DATE and TIME columns
-        df["DATE"] = df["published_parsed"].dt.date
+        df["DATE"] = df["published_parsed"].dt.strftime("%d-%b-%Y")
         df["TIME"] = df["published_parsed"].dt.strftime("%H:%M")
     else:
         df["published_parsed"] = pd.NaT
@@ -48,7 +48,7 @@ def load_data(csv_url):
 
     return df
 
-# Load
+# ---------------- MAIN APP ----------------
 df = load_data(CSV_URL)
 
 st.title("📋 Mentions List")
@@ -82,13 +82,4 @@ else:
             lambda x: f"[Open Article]({x})" if isinstance(x, str) and x.startswith("http") else ""
         )
 
-    st.dataframe(filtered[cols_to_show].reset_index(drop=True), height=500)
-
-    # --- Download filtered ---
-    csv_bytes = filtered[cols_to_show].to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "📥 Download Filtered Mentions",
-        data=csv_bytes,
-        file_name="helb_mentions_filtered.csv",
-        mime="text/csv",
-    )
+    st.dataframe(filtered[cols_to_show].re
