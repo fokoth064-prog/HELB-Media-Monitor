@@ -19,9 +19,17 @@ def load_data(csv_url):
 
     # Ensure published_parsed column exists
     if "published" in df.columns:
-        df["published_parsed"] = pd.to_datetime(df["published"], errors="coerce")
+        # Parse and localize to Nairobi (EAT, UTC+3)
+        df["published_parsed"] = pd.to_datetime(df["published"], errors="coerce", utc=True)
+        df["published_parsed"] = df["published_parsed"].dt.tz_convert("Africa/Nairobi")
+
+        # Create clean date and time columns
+        df["date_only"] = df["published_parsed"].dt.date
+        df["time_only"] = df["published_parsed"].dt.strftime("%H:%M")
     else:
         df["published_parsed"] = pd.NaT
+        df["date_only"] = ""
+        df["time_only"] = ""
 
     # Fill NaNs for text columns
     for col in ["title", "summary", "source", "tonality", "link"]:
@@ -53,7 +61,7 @@ else:
     # --- Display results ---
     st.markdown(f"**Results:** {len(filtered):,} articles")
 
-    cols_to_show = ["published", "source", "tonality", "title", "summary", "link"]
+    cols_to_show = ["date_only", "time_only", "source", "tonality", "title", "summary", "link"]
     cols_to_show = [c for c in cols_to_show if c in filtered.columns]
 
     if "published_parsed" in filtered.columns:
