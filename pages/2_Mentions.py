@@ -75,12 +75,12 @@ def make_html_table(df, cols, max_rows=200):
 
     html = """
     <div style="overflow:auto; max-height:650px;">
-    <table style="border-collapse:collapse; width:100%; font-family:Arial, sans-serif;">
+    <table style="border-collapse:collapse; width:100%; font-family:Arial, sans-serif; color:#000000; font-size:14px;">
       <thead>
         <tr>
     """
     for c in cols:
-        html += f'<th style="text-align:left; padding:8px; border-bottom:1px solid #ddd; background:#f8f8f8;">{c}</th>'
+        html += f'<th style="text-align:left; padding:8px; border-bottom:1px solid #ddd; background:#f8f8f8; color:#000000;">{c}</th>'
     html += "</tr></thead><tbody>"
 
     n = min(len(df), max_rows)
@@ -88,14 +88,14 @@ def make_html_table(df, cols, max_rows=200):
         row = df.iloc[i]
         ton = str(row["TONALITY"]) if "TONALITY" in row else ""
         bg = COLORS.get(ton, "#ffffff")
-        html += f'<tr style="background:{bg};">'
+        html += f'<tr style="background:{bg}; color:#000000;">'
         for c in cols:
             v = row[c] if c in row.index else ""
             if c == "LINK" and isinstance(v, str) and v.startswith("http"):
-                cell = f'<a href="{v}" target="_blank" rel="noopener noreferrer">Open Article</a>'
+                cell = f'<a href="{v}" target="_blank" rel="noopener noreferrer" style="color:#0645AD;">Open Article</a>'
             else:
                 cell = str(v).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            html += f'<td style="padding:8px; vertical-align:top; border-bottom:1px solid #eee;">{cell}</td>'
+            html += f'<td style="padding:8px; vertical-align:top; border-bottom:1px solid #eee; color:#000000;">{cell}</td>'
         html += "</tr>"
     html += "</tbody></table></div>"
     return html
@@ -224,4 +224,3 @@ try:
         st.info("No trigrams available.")
 except Exception as e:
     st.error(f"Failed to extract trigrams: {e}")
-
